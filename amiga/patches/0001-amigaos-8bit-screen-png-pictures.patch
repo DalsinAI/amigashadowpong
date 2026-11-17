@@ -1,0 +1,88 @@
+diff --git a/game.cpp b/game.cpp
+index f38f8c9..f51731d 100644
+--- a/game.cpp
++++ b/game.cpp
+@@ -6,6 +6,23 @@
+ #include <SDL/SDL_mixer.h>
+ #include <SDL/SDL_image.h>
+ 
++/* where the pictures are: upstream's ext/ BMPs, or the Amiga port's PNGs */
++#ifndef SPDATA
++#define SPDATA "ext/"
++#define SPEXT ".bmp"
++#endif
++#ifndef SPEXT
++#define SPEXT ".png"
++#endif
++/* On a 24-bit screen the key, the first byte of the picture, never matches
++ * a whole pixel, so upstream's paddles are solid; on an 8-bit screen it
++ * would be the paddle's only colour, and the paddle would vanish. */
++#ifdef __amigaos__
++#define PADDLEKEY 0
++#else
++#define PADDLEKEY 1
++#endif
++
+ int player_speed = 3;
+ const double ball_speed = 2.5;
+ int computer_speed = 3;
+@@ -37,7 +54,7 @@ struct blit {
+   SDL_Rect *dstrect;
+ } blits[10];
+ 
+-SDL_Surface *LoadImage(char *datafile, int transparent)
++SDL_Surface *LoadImage(const char *datafile, int transparent)
+ {
+   SDL_Surface *image, *surface;
+ 
+@@ -55,22 +72,22 @@ SDL_Surface *LoadImage(char *datafile, int transparent)
+ }
+ int LoadData(void)
+ {
+-  player.image = LoadImage(("ext/paddle.bmp"), 1);
++  player.image = LoadImage(SPDATA "paddle" SPEXT, PADDLEKEY);
+ 
+   if( player.image == NULL ) {
+     return(0);
+   }
+ 
+-  ball.image = LoadImage(("ext/ball.bmp"), 0);
++  ball.image = LoadImage(SPDATA "ball" SPEXT, 0);
+ 
+   if( ball.image == NULL ) {
+     return(0);
+   }
+-  computer.image = LoadImage(("ext/paddle.bmp"), 1);
++  computer.image = LoadImage(SPDATA "paddle" SPEXT, PADDLEKEY);
+   if( computer.image == NULL ) {
+     return(0);
+   }
+-  background = LoadImage(("ext/background.bmp"), 0);
++  background = LoadImage(SPDATA "background" SPEXT, 0);
+ 
+   for (int i=0; i<10; ++i ) {
+     blits[i].srcrect = &srcupdate[i];
+@@ -317,7 +334,15 @@ int main(void)
+   }
+   atexit(SDL_Quit);
+ 
++  #ifdef __amigaos__
++  screen = SDL_SetVideoMode(640, 480, 8, SDL_SWSURFACE);
++  if( screen != NULL ) {
++    SDL_Color bw[2] = { { 0, 0, 0, 0 }, { 255, 255, 255, 0 } };
++    SDL_SetColors(screen, bw, 0, 2);
++  }
++#else
+   screen = SDL_SetVideoMode(640, 480, 0, SDL_SWSURFACE);
++#endif
+   if( screen == NULL ) {
+     fprintf(stderr, "Couldn't set 640x480 video mode: %s\n", SDL_GetError());
+   exit(2);
+@@ -330,6 +355,6 @@ int main(void)
+     FreeData();
+   }
+   printf("Player Scored: %i.\n", player_points);
+-  printf("Computer Scored: %i.\n", computer_points,".\n");
++  printf("Computer Scored: %i.\n", computer_points);
+   exit(0);
+ }
