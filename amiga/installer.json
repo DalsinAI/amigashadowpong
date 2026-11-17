@@ -1,0 +1,14 @@
+{
+  "name": "ShadowPong",
+  "version": "1.6-gfos1",
+  "drawer": "ShadowPong",
+  "program": "ShadowPong",
+  "cpu": "68040",
+  "fpu": true,
+  "space": 400000,
+  "modules": [],
+  "keep": [],
+  "parent": "Work:Games",
+  "badge": "icons/art/shadowpong.png",
+  "script": "Install-ShadowPong"
+}

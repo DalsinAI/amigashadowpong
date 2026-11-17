@@ -1,0 +1,34 @@
+Shadow Pong for GFOS and AmigaOS 3.x: the licences
+
+Shadow Pong 1.6, (c) 2006 Matthew Little, code and pictures, released on
+SourceForge (https://sourceforge.net/projects/shadow-pong/) under the BSD
+licence, as its project page states; the release tarball itself carries
+no licence text (README-ShadowPong.txt is its README).
+
+The pictures here are upstream's three, pixel for pixel, as PNGs in two
+colours (tools/shadowpong8.py in the port's repository makes them).
+
+The Amiga port (patch, start-up, icons, Installer script, build scripts):
+Copyright (c) 2026 AmiCradle Team, under the BSD 2-Clause licence:
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are
+  met: 1. Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+  IS" AND ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED. IN NO EVENT
+  SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DAMAGES
+  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE.
+
+Its source is at https://github.com/DalsinAI/amigashadowpong (the build
+fetches upstream's tarball and checks it against the sha256
+package/shadowpong.lock names).
+
+acgame.library (Libs/) and acsdl12, linked into the program: Copyright (c)
+2026 AmiCradle Team, MIT licence; acsdl12 holds zlib 1.3.1's inflate
+(c) 1995-2024 Jean-loup Gailly and Mark Adler, zlib licence.
+
+Designed, tested and delivered by The AmiCradle Team.

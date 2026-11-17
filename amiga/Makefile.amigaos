@@ -1,0 +1,86 @@
+# Shadow Pong 1.6 for GFOS (AmigaOS 3.2 with GFOpenUp) and any AmigaOS 3.x,
+# 68040 + FPU, on acsdl12 (SDL 1.2 on ACGame: 8-bit AGA and RTG screens,
+# keyboard) and acgame.library.
+#
+#   make -f amiga/Makefile.amigaos SHADOWPONG=/path/to/ShadowPong ACSDL=... \
+#        ACSDLLIB=... ACGAME=... ACGAMELIB=... [STOVE=...]
+#
+# SHADOWPONG is upstream's ShadowPong drawer from the tarball
+# package/shadowpong.lock names, with amiga/patches applied; ACSDL is
+# amicradle-guest's gameports/acsdl12 and ACSDLLIB its build made with ACG=
+# (without ACGame's own sources: the game gets ACGame from acgame.library);
+# ACGAME is DalsinAI/acgame and ACGAMELIB its build (libacgame.a, the stubs
+# that open PROGDIR:Libs/acgame.library, then LIBS:acgame.library, and the
+# library itself). package/build-amiga.sh fetches and builds them all.
+#
+# 640 x 480 in black and white (amiga/data, made by tools/shadowpong8.py).
+#
+# Output: build/amigaos/ShadowPong/ (the drawer: ShadowPong, Data/,
+# Libs/acgame.library, ReadMe, the licences, with GlowIcons),
+# build/amigaos/ShadowPong.info and Install-ShadowPong beside them.
+
+SHADOWPONG ?= ../ShadowPong
+STOVE   ?= $(HOME)/AmiCradle/kitchen/stoves/os32-gcc16-open6
+PREFIX  ?= $(STOVE)/prefix
+ACSDL   ?= ../amicradle-guest/gameports/acsdl12
+ACSDLLIB ?= $(ACSDL)/build/amigaos
+ACGAME  ?= ../acgame
+ACGAMELIB ?= $(ACGAME)/build-amiga
+CC      = $(PREFIX)/bin/m68k-amigaos-gcc
+CXX     = $(PREFIX)/bin/m68k-amigaos-g++
+STRIP   = $(PREFIX)/bin/m68k-amigaos-strip
+CPU     ?= -m68040 -m68881
+# -fno-tree-loop-distribute-patterns: GCC 16's loop miscompile
+OPT     ?= -O2 -fomit-frame-pointer -fno-tree-loop-distribute-patterns
+NOIX    ?= -noixemul
+DEFS    = -D__amigaos__ -DSPDATA=\"PROGDIR:Data/\"
+INC     = -I$(ACSDL)/include -I$(ACSDL)/include/SDL -I$(ACGAME)/include
+CFLAGS  = $(NOIX) $(OPT) $(CPU) -Wall
+# upstream is one C++ file in C style; its own warnings are left as they are
+CXXFLAGS = $(CFLAGS) $(DEFS) -std=gnu++98 -fno-exceptions -fno-rtti -Wno-write-strings -Wno-unused-variable -Wno-misleading-indentation
+LDFLAGS = $(NOIX) $(CPU)
+LIBS    ?= $(ACSDLLIB)/libacsdl12.a $(ACGAMELIB)/libacgame.a -lpthread -latomic -lm
+
+BUILD   = build/amigaos
+OBJDIR  = $(BUILD)/obj
+OUT     = $(BUILD)/ShadowPong
+PROG    = ShadowPong
+OBJS    = $(OBJDIR)/game.o $(OBJDIR)/amiga_start.o
+
+all: $(OUT)/$(PROG) package
+
+$(BUILD)/$(PROG).debug: $(OBJS)
+	@mkdir -p $(BUILD)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+
+$(OUT)/$(PROG): $(BUILD)/$(PROG).debug
+	@mkdir -p $(OUT)
+	$(STRIP) -o $@ $<
+
+package: $(OUT)/$(PROG) AMIGA_PORT.md amiga/Licences.txt
+	rm -rf $(OUT)/Data $(OUT)/Libs
+	mkdir -p $(OUT)/Data $(OUT)/Libs
+	cp amiga/data/*.png $(OUT)/Data/
+	cp $(ACGAMELIB)/acgame.library $(OUT)/Libs/
+	cp AMIGA_PORT.md $(OUT)/ReadMe
+	cp $(SHADOWPONG)/README $(OUT)/README-ShadowPong.txt
+	cp amiga/Licences.txt $(OUT)/Licences.txt
+	cp amiga/icons/ShadowPong.info amiga/icons/ReadMe.info $(OUT)/
+	for f in README-ShadowPong.txt Licences.txt; do \
+	    cp amiga/icons/ReadMe.info $(OUT)/$$f.info; done
+	cp amiga/icons/Data.info $(OUT)/Data.info
+	cp amiga/icons/ShadowPong-drawer.info $(BUILD)/ShadowPong.info
+	cp amiga/Install-ShadowPong amiga/Install-ShadowPong.info $(BUILD)/
+
+$(OBJDIR)/game.o: $(SHADOWPONG)/game.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) $(INC) -c -o $@ $<
+
+$(OBJDIR)/amiga_start.o: amiga/amiga_start.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+clean:
+	rm -rf $(BUILD)
+
+.PHONY: all package clean

@@ -1,0 +1,11 @@
+# Upstream Shadow Pong 1.6 (Matthew Little, 2006: code and pictures) as
+# released on SourceForge (project shadow-pong, BSD licence there); the
+# tarball is fetched and checked against this sha256, never kept here.
+SHADOWPONG_URL=https://downloads.sourceforge.net/project/shadow-pong/shadow-pong/1.6/shadowpong-1.6.tar.bz2
+SHADOWPONG_SHA256=d07681bf59253ec581726cfc507990ae98dfc793c2d76a303830d343cf18f570
+SHADOWPONG_VERSION=1.6
+PORT_VERSION=1.6-gfos1
+# acgame.library and acsdl12 (SDL 1.2 on ACGame) at the commits it is built against
+ACGAME_REF=05f72b98d05044b149be315400bb6e196b42799d
+GUEST_REF=4a80120d3550644695ca5f00f5c68d609d71022a
+ZLIB_REF=51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf
